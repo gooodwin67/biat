@@ -12,6 +12,8 @@ export class GameClass {
 
     this.ground = null;
 
+    this.cameraOffset = new THREE.Vector3(); 
+
     this.options = {
       size: { w: 10, h: 10, d: 0.2 },
       name: 'ground'
@@ -46,7 +48,30 @@ export class GameClass {
 
   update() {
 
-    // console.log(this.playerClass.player.position.x)
+    // this.camera.position.x =  this.playerClass.player.position.x;
+    // this.camera.position.z =  this.playerClass.player.position.z + 7;
+
+    //CAMERA
+
+    const dist = 8;  // Дистанция позади игрока
+    const height = 3; // Высота камеры над игроком
+    const smooth = 0.1; // Плавность (0.01 - очень медленно, 1.0 - мгновенно)
+
+    // Текущая позиция игрока (берем из меша, так как физика его обновляет)
+    const playerPos = this.playerClass.player.position;
+
+    // Вычисляем, где камера ДОЛЖНА быть:
+    // Позиция игрока МИНУС вектор направления (чтобы быть сзади) умноженный на дистанцию
+    const idealPosition = new THREE.Vector3()
+        .copy(playerPos)
+        .sub(this.playerClass.player.userData.forwardDirection.clone().multiplyScalar(dist)) // Отодвигаем назад
+        .add(new THREE.Vector3(0, height, 0)); // Поднимаем вверх (глобально по Y)
+
+    // Плавно перемещаем камеру к идеальной позиции
+    // this.camera.position.lerp(idealPosition, smooth);
+
+    // // Камера всегда смотрит на игрока (или чуть выше него)
+    // this.camera.lookAt(playerPos.x, playerPos.y + 1.0, playerPos.z);
   }
 
 }

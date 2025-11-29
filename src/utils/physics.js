@@ -258,14 +258,15 @@ export class PhysicsClass {
             .setTranslation(obj.position.x, obj.position.y, obj.position.z)
             .setRotation(obj.quaternion)
             .setCanSleep(false)
-            .lockRotations() // Игрок обычно не должен падать "лицом в пол"
-            .setLinearDamping(1.0)
-            .setAngularDamping(1.0);
+            .lockRotations()
+            .enabledRotations(false, true, true, true)
+            .setLinearDamping(0.5)
+            .setAngularDamping(2.0);
 
         const body = this.world.createRigidBody(bodyDesc);
 
-        // 2. Collider (Ball для игрока лучше всего подходит для движения)
-        const colliderDesc = this.RAPIER.ColliderDesc.cuboid(size.x / 2, size.y / 2, size.z / 2)
+        // 2. Collider ()
+        const colliderDesc = this.RAPIER.ColliderDesc.capsule(size.x / 2, 0.2)
             .setMass(30)
             .setRestitution(0.0) // Не прыгучий
             .setFriction(0.0)    // Чтобы не цеплялся за стены

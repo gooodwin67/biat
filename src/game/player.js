@@ -5,6 +5,7 @@ export class PlayerClass {
 
     this.scene = gameContext.scene;
     this.events = gameContext.events;
+    this.camera = gameContext.camera;
 
     this.physicsClass = gameContext.physicsClass;
 
@@ -14,6 +15,7 @@ export class PlayerClass {
       size: { w: 0.2, h: 0.5, d: 0.3 },
       color: 0x770074,
       speed: 1.0,
+      turnSpeed: 1,
       name: 'player',
     }
     this.move = { left: 0, right: 0, forward: 0, backward: 0 }
@@ -22,7 +24,7 @@ export class PlayerClass {
   }
 
   loadPlayer() {
-    let geometryMesh = new THREE.BoxGeometry(this.options.size.w, this.options.size.h, this.options.size.d);
+    let geometryMesh = new THREE.CapsuleGeometry(this.options.size.w, this.options.size.h);
     let materialMesh = new THREE.MeshStandardMaterial({ color: this.options.color, side: THREE.DoubleSide });
     this.player = new THREE.Mesh(geometryMesh, materialMesh);
 
@@ -31,6 +33,7 @@ export class PlayerClass {
     this.player.castShadow = true;
     this.player.receiveShadow = true;
     this.player.position.set(0, 1, 0);
+    this.player.rotateX(Math.PI/2);
 
     this.physicsClass.addPhysicsToObject(this.player);
     this.playerBody = this.player.userData.body;
@@ -48,50 +51,99 @@ export class PlayerClass {
 
   update(delta) {
     const body = this.playerBody;
+    if (!body) return;
 
-    // 1. Считываем ввод (направление, куда хотим толкать)
-    let moveX = 0;
-    let moveZ = 0;
+    // ===========================
+    // 1. ПОВОРОТ (Steering)
+    // ===========================
+    let turn = 0;
+    if (this.move.left) turn += 1;
+    if (this.move.right) turn -= 1;
 
-    if (this.move.forward) moveZ -= 1;
-    if (this.move.backward) moveZ += 1;
-    if (this.move.left) moveX -= 1;
-    if (this.move.right) moveX += 1;
-
-    // Нормализуем вектор ввода
-    const length = Math.sqrt(moveX * moveX + moveZ * moveZ);
-    if (length > 0) {
-      moveX /= length;
-      moveZ /= length;
+    if (turn !== 0) {
+        const currentAngVel = body.angvel();
+        body.setAngvel({
+            x: currentAngVel.x,
+            y: turn * this.options.turnSpeed,
+            z: currentAngVel.z
+        }, true);
+    } else {
+        const currentAngVel = body.angvel();
+        body.setAngvel({ x: currentAngVel.x, y: 0, z: currentAngVel.z }, true);
     }
 
-    // ===============================================
-    // ЧИСТАЯ ФИЗИКА (Impulse)
-    // ===============================================
+    // ===========================
+    // 2. РАСЧЕТ ВЕКТОРОВ
+    // ===========================
 
-    // Сила толчка (подбирай экспериментально, начни с больших чисел, например 50-100)
-    const acceleration = this.options.speed * 2.0;
+    const rotation = body.rotation(); 
+    const q = new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+    
+    // Вектор "Вперед" (локальный Y капсулы, лежащей на боку)
+    const forwardDirection = new THREE.Vector3(0, 1, 0); 
+    forwardDirection.applyQuaternion(q);
+    forwardDirection.normalize();
 
-    // Получаем текущую скорость, чтобы ограничить "бесконечный разгон"
+    // Вектор "Вправо" (локальный X). Нужен, чтобы найти боковую скорость.
+    const rightDirection = new THREE.Vector3(1, 0, 0);
+    rightDirection.applyQuaternion(q);
+    rightDirection.normalize();
+
+    this.player.userData.forwardDirection = forwardDirection;
+
+    // ===========================
+    // 3. УСТРАНЕНИЕ ЗАНОСА (ГЛАВНАЯ ЧАСТЬ)
+    // ===========================
+
+    // Получаем текущую линейную скорость
     const vel = body.linvel();
+    const currentVel = new THREE.Vector3(vel.x, vel.y, vel.z);
 
-    // Ограничение максимальной скорости (чтобы с горы не улетел в космос)
-    const maxSpeed = this.options.speed;
+    // 1. Находим, какая часть скорости направлена ВБОК (проекция на rightDirection)
+    // dot продукт возвращает скаляр (число)
+    const sideSpeed = currentVel.dot(rightDirection);
 
-    // Считаем горизонтальную скорость
-    const currentSpeed = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
+    // 2. Находим, какая часть скорости направлена ВПЕРЕД
+    const forwardSpeed = currentVel.dot(forwardDirection);
 
-    // Толкаем, только если еще не достигли лимита скорости
-    // (или если пытаемся повернуть в другую сторону)
-    if (currentSpeed < maxSpeed || length === 0) {
+    // 3. Параметр "Сцепление" (Grip).
+    // 0.0 - чистый лед (полный занос)
+    // 0.1 - мыло
+    // 0.9 - рельсы (почти нет заноса)
+    // 0.95-0.98 - хорошие лыжи
+    const gripFactor = 0.95; 
 
-      // Мы применяем ИМПУЛЬС. Это как "пинок" в нужном направлении.
-      // wakeUp: true обязательно, чтобы разбудить тело
-      body.applyImpulse({
-        x: moveX * acceleration,
-        y: 0, // Не толкаем вверх/вниз, пусть гравитация решает
-        z: moveZ * acceleration
-      }, true);
+    // Мы уменьшаем боковую скорость
+    const clampedSideSpeed = sideSpeed * (1 - gripFactor);
+
+    // 4. Собираем новую скорость:
+    // Берем текущую скорость вперед + (сильно уменьшенную) скорость вбок
+    const newVel = forwardDirection.clone().multiplyScalar(forwardSpeed)
+        .add(rightDirection.clone().multiplyScalar(clampedSideSpeed));
+
+    // Важно: возвращаем вертикальную скорость (гравитацию), иначе лыжник зависнет в воздухе
+    newVel.y = vel.y; 
+
+    // Применяем обновленную скорость к телу (убираем дрифт)
+    body.setLinvel(newVel, true);
+
+
+    // ===========================
+    // 4. ГАЗ / ТОРМОЗ
+    // ===========================
+    let throttle = 0;
+    if (this.move.forward) throttle += 1;
+    if (this.move.backward) throttle -= 1;
+
+    if (throttle !== 0) {
+        const acceleration = this.options.speed * 2.0;
+
+        // Применяем импульс
+        body.applyImpulse({
+            x: forwardDirection.x * acceleration * throttle,
+            y: 0, 
+            z: forwardDirection.z * acceleration * throttle
+        }, true);
     }
   }
 
