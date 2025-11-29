@@ -60,14 +60,17 @@ async function BeforeStart() {
 
   // Подписываемся на старт матча
   gameContext.events.on('start_match', () => startMatch());
+  startMatch();
 
   // ВАЖНО: Запускаем цикл отрисовки только когда все классы созданы!
   startAnimationLoop();
 }
 
 async function startMatch() {
+  await gameContext.assetsManager.loadModels();
   gameContext.ui.hideAll();
   gameContext.gameClass.loadMesh();
+  gameContext.gameClass.loadTrack();
   gameContext.playerClass.loadPlayer();
   gameContext.instancesClass.init();
   gameContext.worldClass.loadLight(true, true);
@@ -129,6 +132,7 @@ function update(delta) {
     case gameContext.paramsClass.gameState.play:
       gameContext.playerClass.update(delta);
       gameContext.physicsClass.update(delta);
+      gameContext.gameClass.update(delta);
       break;
   }
 }

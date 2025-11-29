@@ -141,22 +141,109 @@ export class PhysicsClass {
      * Определяет тип по userData.name (для совместимости с твоим кодом)
      */
     addPhysicsToObject(obj) {
-        if (!obj || !obj.userData) return;
+        if (!obj) return;
 
-        const name = obj.userData.name || '';
+        // --- ВАЖНОЕ ИСПРАВЛЕНИЕ ---
+        // Если передан Группа или Сцена, мы должны пройтись по всем её детям
+        // и найти настоящие Меши (у которых есть геометрия).
+        if (obj.isGroup || obj.isScene) {
+            obj.traverse((child) => {
+                if (child.isMesh) {
+                    // Рекурсивно вызываем этот же метод для каждого меша
+                    this.addPhysicsToObject(child);
+                }
+            });
+            return; // Прерываем выполнение для самой группы
+        }
+        // ---------------------------
 
-        // Логика определения типа тела
+        // Дальше логика только для Mesh
+        const name = (obj.userData.name || obj.name || '').toLowerCase(); // Добавил obj.name как фолбек
+
+        // Игнорируем вспомогательные объекты (линии, точки и т.д., если это не нужно)
+        if (!obj.isMesh) return;
+
+        // Логика определения типа
         if (name.includes('player')) {
             this._createPlayerBody(obj);
-        } else if (name.includes('ground') || name.includes('wall')) {
-            this._createStaticBody(obj); // Или Kinematic, как у тебя было для ground
-        } else {
-            // Фолбек для остальных объектов
-            this._createGenericBody(obj);
+        }
+        else if (name.includes('track') || name.includes('terrain') || name.includes('plane')) {
+            // Теперь сюда попадет именно Mesh "Plane", у которого есть geometry
+            this._createTrimeshBody(obj);
+        }
+        else if (name.includes('ground') || name.includes('wall')) {
+            this._createStaticBody(obj);
+        }
+        else {
+            // Фолбек можно оставить, или закомментировать, если он создает лишнее
+            // this._createGenericBody(obj); 
         }
     }
 
     // --- Specific Factories ---
+
+    _createTrimeshBody(obj) {
+        // Проверка наличия геометрии
+        if (!obj.geometry) {
+            console.error("Physics: Trimesh body requires geometry", obj);
+            return;
+        }
+
+        // 1. Создаем статическое тело (Трасса не двигается)
+        // Мы берем позицию и вращение объекта, чтобы поставить трассу в мире
+        const bodyDesc = this.RAPIER.RigidBodyDesc.fixed()
+            .setTranslation(obj.position.x, obj.position.y, obj.position.z)
+            .setRotation(obj.quaternion);
+
+        const body = this.world.createRigidBody(bodyDesc);
+
+        // 2. Подготовка данных для Trimesh
+        // Нам нужно "запечь" scale объекта в вершины, так как trimesh в rapier
+        // создается по сырым координатам, и scale самого Mesh на него не влияет.
+
+        const geometry = obj.geometry;
+        const posAttr = geometry.attributes.position;
+        const vertices = new Float32Array(posAttr.count * 3);
+
+        // Получаем масштаб
+        const scale = obj.scale;
+
+        // Копируем вершины и сразу применяем масштаб
+        for (let i = 0; i < posAttr.count; i++) {
+            vertices[i * 3 + 0] = posAttr.getX(i) * scale.x;
+            vertices[i * 3 + 1] = posAttr.getY(i) * scale.y;
+            vertices[i * 3 + 2] = posAttr.getZ(i) * scale.z;
+        }
+
+        // Получаем индексы. Если их нет (неиндексированная геометрия), создаем сами.
+        let indices;
+        if (geometry.index) {
+            indices = geometry.index.array;
+        } else {
+            indices = new Uint32Array(posAttr.count);
+            for (let i = 0; i < posAttr.count; i++) {
+                indices[i] = i;
+            }
+        }
+
+        // 3. Создаем коллайдер Trimesh
+        // trimesh(vertices, indices)
+        const colliderDesc = this.RAPIER.ColliderDesc.trimesh(vertices, indices)
+            .setFriction(0.1)      // Трение для колес
+            .setRestitution(0.0);  // Чтобы машина не прыгала как мячик
+
+        // Важно для оптимизации: Trimesh сложный, поэтому включаем коллизии только если нужно
+        colliderDesc.setActiveEvents(this.RAPIER.ActiveEvents.COLLISION_EVENTS);
+
+        const collider = this.world.createCollider(colliderDesc, body);
+
+        // 4. Привязываем данные
+        this._attachDataToMesh(obj, body, collider);
+
+        // Trimesh обычно статичен, но если вы планируете двигать трассу, 
+        // добавьте её в dynamicBodies (но лучше не надо, это дорого для CPU).
+    }
+
 
     _createPlayerBody(obj) {
         // Подготовка размеров
@@ -172,14 +259,14 @@ export class PhysicsClass {
             .setRotation(obj.quaternion)
             .setCanSleep(false)
             .lockRotations() // Игрок обычно не должен падать "лицом в пол"
-            .setLinearDamping(2.0)
-            .setAngularDamping(2.0);
+            .setLinearDamping(1.0)
+            .setAngularDamping(1.0);
 
         const body = this.world.createRigidBody(bodyDesc);
 
         // 2. Collider (Ball для игрока лучше всего подходит для движения)
-        const colliderDesc = this.RAPIER.ColliderDesc.ball(size.x / 2)
-            .setMass(100)
+        const colliderDesc = this.RAPIER.ColliderDesc.cuboid(size.x / 2, size.y / 2, size.z / 2)
+            .setMass(30)
             .setRestitution(0.0) // Не прыгучий
             .setFriction(0.0)    // Чтобы не цеплялся за стены
             .setActiveEvents(this.RAPIER.ActiveEvents.COLLISION_EVENTS);
