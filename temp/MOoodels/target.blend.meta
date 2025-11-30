@@ -1,0 +1,241 @@
+fileFormatVersion: 2
+guid: 802a1b03ce4b79042975e182ba8fb3b3
+timeCreated: 1525466175
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: back_stick_1
+    100002: back_stick_2
+    100004: back_stick_3
+    100006: back_stick_4
+    100008: back_stick_5
+    100010: black_target_1
+    100012: black_target_2
+    100014: black_target_3
+    100016: black_target_4
+    100018: black_target_5
+    100020: front_stick2
+    100022: front_stick_1
+    100024: front_stick_3
+    100026: front_stick_4
+    100028: front_stick_5
+    100030: installation
+    100032: //RootNode
+    100034: white_target_1
+    100036: white_target_2
+    100038: white_target_3
+    100040: white_target_4
+    100042: white_target_5
+    100044: front_stick_2
+    100046: w_t_1
+    100048: w_t_2
+    100050: w_t_3
+    100052: w_t_4
+    100054: w_t_5
+    100056: wh_target_1
+    100058: wh_target_2
+    100060: wh_target_3
+    100062: wh_target_4
+    100064: wh_target_5
+    400000: back_stick_1
+    400002: back_stick_2
+    400004: back_stick_3
+    400006: back_stick_4
+    400008: back_stick_5
+    400010: black_target_1
+    400012: black_target_2
+    400014: black_target_3
+    400016: black_target_4
+    400018: black_target_5
+    400020: front_stick2
+    400022: front_stick_1
+    400024: front_stick_3
+    400026: front_stick_4
+    400028: front_stick_5
+    400030: installation
+    400032: //RootNode
+    400034: white_target_1
+    400036: white_target_2
+    400038: white_target_3
+    400040: white_target_4
+    400042: white_target_5
+    400044: front_stick_2
+    400046: w_t_1
+    400048: w_t_2
+    400050: w_t_3
+    400052: w_t_4
+    400054: w_t_5
+    400056: wh_target_1
+    400058: wh_target_2
+    400060: wh_target_3
+    400062: wh_target_4
+    400064: wh_target_5
+    2100000: target
+    2100002: black_target
+    2100004: white_target
+    2300000: back_stick_1
+    2300002: back_stick_2
+    2300004: back_stick_3
+    2300006: back_stick_4
+    2300008: back_stick_5
+    2300010: black_target_1
+    2300012: black_target_2
+    2300014: black_target_3
+    2300016: black_target_4
+    2300018: black_target_5
+    2300020: front_stick2
+    2300022: front_stick_1
+    2300024: front_stick_3
+    2300026: front_stick_4
+    2300028: front_stick_5
+    2300030: installation
+    2300032: white_target_1
+    2300034: white_target_2
+    2300036: white_target_3
+    2300038: white_target_4
+    2300040: white_target_5
+    2300042: front_stick_2
+    3300000: back_stick_1
+    3300002: back_stick_2
+    3300004: back_stick_3
+    3300006: back_stick_4
+    3300008: back_stick_5
+    3300010: black_target_1
+    3300012: black_target_2
+    3300014: black_target_3
+    3300016: black_target_4
+    3300018: black_target_5
+    3300020: front_stick2
+    3300022: front_stick_1
+    3300024: front_stick_3
+    3300026: front_stick_4
+    3300028: front_stick_5
+    3300030: installation
+    3300032: white_target_1
+    3300034: white_target_2
+    3300036: white_target_3
+    3300038: white_target_4
+    3300040: white_target_5
+    3300042: front_stick_2
+    4300000: installation
+    4300002: black_target_1
+    4300004: white_target_2
+    4300006: white_target_1
+    4300008: back_stick_1
+    4300010: front_stick_1
+    4300012: black_target_2
+    4300014: black_target_3
+    4300016: black_target_4
+    4300018: front_stick2
+    4300020: back_stick_2
+    4300022: back_stick_3
+    4300024: front_stick_3
+    4300026: white_target_3
+    4300028: white_target_4
+    4300030: front_stick_4
+    4300032: back_stick_4
+    4300034: back_stick_5
+    4300036: front_stick_5
+    4300038: white_target_5
+    4300040: black_target_5
+    4300042: front_stick_2
+    7400000: Default Take
+    7400002: 1st_target_closed
+    7400004: 1st_target_opened
+    7400006: 2nd_target_closed
+    7400008: 2nd_target_opened
+    7400010: 3rd_target_closed
+    7400012: 3rd_target_opened
+    7400014: 4th_target_closed
+    7400016: 4th_target_opened
+    7400018: 5th_target_closed
+    7400020: 5th_target_opened
+    7400022: all_targets_closed
+    7400024: all_targets_opened
+    9500000: //RootNode
+    13700000: white_target_1
+    13700002: white_target_2
+    13700004: white_target_3
+    13700006: white_target_4
+    13700008: white_target_5
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

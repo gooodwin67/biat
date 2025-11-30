@@ -1,0 +1,7 @@
+FFCDA5 - biathlete skin
+009FFF - blue color
+FF2702 - red color
+1F1C1C - black color
+F5EFF2 - white color
+694D31 - rifle wood
+8A8C88 - grey color
