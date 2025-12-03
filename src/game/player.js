@@ -24,7 +24,7 @@ export class PlayerClass {
   }
 
   loadPlayer() {
-    let geometryMesh = new THREE.CapsuleGeometry(this.options.size.w, this.options.size.h);
+    let geometryMesh = new THREE.CapsuleGeometry(this.options.size.w / 4, 1.5);
     let materialMesh = new THREE.MeshStandardMaterial({ color: this.options.color, side: THREE.DoubleSide });
     this.player = new THREE.Mesh(geometryMesh, materialMesh);
 
@@ -33,7 +33,7 @@ export class PlayerClass {
     this.player.castShadow = true;
     this.player.receiveShadow = true;
     this.player.position.set(0, 1, 0);
-    this.player.rotateX(Math.PI/2);
+    this.player.rotateX(Math.PI / 2);
 
     this.physicsClass.addPhysicsToObject(this.player);
     this.playerBody = this.player.userData.body;
@@ -61,26 +61,26 @@ export class PlayerClass {
     if (this.move.right) turn -= 1;
 
     if (turn !== 0) {
-        const currentAngVel = body.angvel();
-        body.setAngvel({
-            x: currentAngVel.x,
-            y: turn * this.options.turnSpeed,
-            z: currentAngVel.z
-        }, true);
+      const currentAngVel = body.angvel();
+      body.setAngvel({
+        x: currentAngVel.x,
+        y: turn * this.options.turnSpeed,
+        z: currentAngVel.z
+      }, true);
     } else {
-        const currentAngVel = body.angvel();
-        body.setAngvel({ x: currentAngVel.x, y: 0, z: currentAngVel.z }, true);
+      const currentAngVel = body.angvel();
+      body.setAngvel({ x: currentAngVel.x, y: 0, z: currentAngVel.z }, true);
     }
 
     // ===========================
     // 2. РАСЧЕТ ВЕКТОРОВ
     // ===========================
 
-    const rotation = body.rotation(); 
+    const rotation = body.rotation();
     const q = new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
-    
+
     // Вектор "Вперед" (локальный Y капсулы, лежащей на боку)
-    const forwardDirection = new THREE.Vector3(0, 1, 0); 
+    const forwardDirection = new THREE.Vector3(0, 1, 0);
     forwardDirection.applyQuaternion(q);
     forwardDirection.normalize();
 
@@ -111,7 +111,7 @@ export class PlayerClass {
     // 0.1 - мыло
     // 0.9 - рельсы (почти нет заноса)
     // 0.95-0.98 - хорошие лыжи
-    const gripFactor = 0.95; 
+    const gripFactor = 0.95;
 
     // Мы уменьшаем боковую скорость
     const clampedSideSpeed = sideSpeed * (1 - gripFactor);
@@ -119,10 +119,10 @@ export class PlayerClass {
     // 4. Собираем новую скорость:
     // Берем текущую скорость вперед + (сильно уменьшенную) скорость вбок
     const newVel = forwardDirection.clone().multiplyScalar(forwardSpeed)
-        .add(rightDirection.clone().multiplyScalar(clampedSideSpeed));
+      .add(rightDirection.clone().multiplyScalar(clampedSideSpeed));
 
     // Важно: возвращаем вертикальную скорость (гравитацию), иначе лыжник зависнет в воздухе
-    newVel.y = vel.y; 
+    newVel.y = vel.y;
 
     // Применяем обновленную скорость к телу (убираем дрифт)
     body.setLinvel(newVel, true);
@@ -136,14 +136,14 @@ export class PlayerClass {
     if (this.move.backward) throttle -= 1;
 
     if (throttle !== 0) {
-        const acceleration = this.options.speed * 2.0;
+      const acceleration = this.options.speed * 2.0;
 
-        // Применяем импульс
-        body.applyImpulse({
-            x: forwardDirection.x * acceleration * throttle,
-            y: 0, 
-            z: forwardDirection.z * acceleration * throttle
-        }, true);
+      // Применяем импульс
+      body.applyImpulse({
+        x: forwardDirection.x * acceleration * throttle,
+        y: 0,
+        z: forwardDirection.z * acceleration * throttle
+      }, true);
     }
   }
 

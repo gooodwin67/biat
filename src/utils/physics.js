@@ -259,15 +259,15 @@ export class PhysicsClass {
             .setRotation(obj.quaternion)
             .setCanSleep(false)
             .lockRotations()
-            .enabledRotations(false, true, true, true)
+            .enabledRotations(false, true, false, false)
             .setLinearDamping(0.5)
             .setAngularDamping(2.0);
 
         const body = this.world.createRigidBody(bodyDesc);
 
         // 2. Collider ()
-        const colliderDesc = this.RAPIER.ColliderDesc.capsule(size.x / 2, 0.2)
-            .setMass(30)
+        const colliderDesc = this.RAPIER.ColliderDesc.capsule(size.x / 2, 1.5)
+            .setMass(90)
             .setRestitution(0.0) // Не прыгучий
             .setFriction(0.0)    // Чтобы не цеплялся за стены
             .setActiveEvents(this.RAPIER.ActiveEvents.COLLISION_EVENTS);
